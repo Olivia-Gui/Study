@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="todo.css">
+</head>
+<body>
+    <header>
+        <h2>希望清单</h2>
+    </header>
+    <nav>
+        <a href="#" class="active" data-index="0">任务列表</a>
+        <a href="#" data-index='1'>添加任务</a>
+    </nav>
+    <section class="list on" id="contentList">
+
+    </section>
+    <section class="add">
+        <p>内容</p>
+        <p>
+            <input type="text" id="content">
+        </p>
+        <p>日期</p>
+        <p><input type="date" name="" id="date"></p>
+        <p>
+            <button id="subBtn">提交</button>
+        </p>
+    </section>
+</body>
+<script>
+    //获取提交按钮，注册点击事件
+    let sBtn=document.querySelector('#subBtn')
+    sBtn.onclick=function(){
+        //alert(123)  测试
+        //点击提交后获取内容的数据
+        let cont=document.querySelector('#content').value
+        //console.log(cont)
+        //获取日期的数据
+        let time=document.querySelector('#date').value
+        //console.log(time)
+        //获取键名为todo的数据
+        let todo=localStorage.getItem('todo')
+        //console.log(typeof todo) 字符串
+        if(todo){
+            //有值 转换成数组
+            let arr=JSON.parse(todo)
+            //console.log(arr)
+            arr.push({
+                'content':cont,
+                'time':time
+            })
+            let msg=JSON.stringify(arr)
+            localStorage.setItem('todo',msg)
+
+        }else{
+            //没有值 创建空数组来保存数据
+            let arr=[]
+
+            arr.push({
+                'content':cont,
+                'time':time
+            })
+            //console.log(arr)
+            //把数组转换为字符串，赋值给变量msg
+            let msg=JSON.stringify(arr)
+            localStorage.setItem('todo',msg)
+        }
+        //清空两个input的value
+        content.value=''
+        date.value=''
+        history.go(0)//刷新
+    }
+    //渲染任务列表
+    window.onload=function(){
+        //本地存储获取数据
+        let todo=localStorage.getItem('todo') //获取到字符串
+        //如果没有数据的话就不获取
+        if(!todo) return false;
+
+        //将字符串转换成数组
+        let arr=JSON.parse(todo)
+        //console.log(arr)
+
+        //遍历
+        let singleTodo=''
+        for(let i=0;i<arr.length;i++){
+            singleTodo+=`<p>
+             <span>${arr[i].content}</span>
+             <span>${arr[i].time}</span>
+             <button class="del" data-id=${i}>删除</button>
+            </p>`
+        }
+        //渲染到页面
+        contentList.innerHTML=singleTodo
+
+        //获取数据
+        let cList=document.querySelector('#contentList')
+        cList.onclick=function(event){
+            if(event.target.className=='del'){
+              let bIndex=event.target.dataset['id']
+
+               arr.splice(bIndex,1);
+               localStorage.setItem('todo',JSON.stringify(arr));
+               //当数据为空的时候清除todo
+               if(arr.length<=0){
+                   localStorage.removeItem('todo')
+               }
+               //渲染页面
+               history.go(0)
+            }
+        }
+    }
+
+    //导航激活效果
+    let aList=document.querySelectorAll('nav a')
+    let sList=document.querySelectorAll('section')
+
+    for(let i=0;i<aList.length;i++){
+        //给nav下面的a添加点击事件
+        aList[i].onclick=function(){
+            //alert(123)
+            for(let j=0;j<aList.length;j++){
+                //清除所有a的active类名
+                aList[j].classList.remove('active')
+                //清除所有的section类名on
+                sList[j].classList.remove('on')
+            }
+            //激活当前点击的a的样式
+            this.classList.add('active')
+            //获取自定义属性index
+            let index=this.dataset['index']
+            //console.log(index)
+            //激活当前导航对应的section
+            sList[index].classList.add('on')
+            return false;
+        }
+    }
+     
+
+     
+     
+       
+    
+
+
+</script>
+</html>
